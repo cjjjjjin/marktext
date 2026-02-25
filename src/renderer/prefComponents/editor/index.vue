@@ -155,6 +155,11 @@
           :onChange="value => onSelectChange('hideLinkPopup', value)"
         ></bool>
         <bool
+          description="Open files in read-only mode"
+          :bool="readOnly"
+          :onChange="value => onSelectChange('readOnly', value)"
+        ></bool>
+        <bool
           description="Whether to automatically check any related tasks"
           :bool="autoCheck"
           :onChange="value => onSelectChange('autoCheck', value)"
@@ -217,6 +222,7 @@ export default {
       hideQuickInsertHint: state => state.preferences.hideQuickInsertHint,
       hideLinkPopup: state => state.preferences.hideLinkPopup,
       autoCheck: state => state.preferences.autoCheck,
+      readOnly: state => state.preferences.readOnly,
       editorLineWidth: state => state.preferences.editorLineWidth,
       defaultEncoding: state => state.preferences.defaultEncoding,
       autoGuessEncoding: state => state.preferences.autoGuessEncoding,

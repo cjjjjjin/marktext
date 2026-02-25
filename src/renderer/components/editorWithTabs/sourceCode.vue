@@ -28,6 +28,7 @@ export default {
     ...mapState({
       theme: state => state.preferences.theme,
       sourceCode: state => state.preferences.sourceCode,
+      readOnly: state => state.preferences.readOnly,
       currentTab: state => state.editor.currentFile
     })
   },
@@ -48,6 +49,12 @@ export default {
       if (value !== oldValue && editor) {
         setTextDirection(editor, value)
       }
+    },
+    readOnly: function (value, oldValue) {
+      const { editor } = this
+      if (value !== oldValue && editor) {
+        editor.setOption('readOnly', value)
+      }
     }
   },
 
@@ -62,6 +69,7 @@ export default {
         lineNumbers: true,
         autofocus: true,
         lineWrapping: true,
+        readOnly: this.readOnly,
         styleActiveLine: true,
         direction: textDirection,
         // The amount of updates needed when scrolling. Settings this to >Infinity< or use CSS
@@ -133,6 +141,9 @@ export default {
   },
   methods: {
     handleImageAction ({ id, result, alt }) {
+      if (this.readOnly) {
+        return
+      }
       const { editor } = this
       const value = editor.getValue()
       const focus = editor.getCursor('focus')
@@ -184,6 +195,9 @@ export default {
     listenChange () {
       const { editor } = this
       editor.on('cursorActivity', cm => {
+        if (this.readOnly) {
+          return
+        }
         const { cursor, markdown } = this.getMarkdownAndCursor(cm)
         // Attention: the cursor may be `{focus: null, anchor: null}` when press `backspace`
         const wordCount = getWordCount(markdown)

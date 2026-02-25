@@ -30,6 +30,7 @@
   "trimTrailingNewline": 2,
   "textDirection": "ltr",
   "hideQuickInsertHint": false,
+  "readOnly": false,
   "imageInsertAction": "path",
   "imagePreferRelativeDirectory": false,
   "imageRelativeDirectoryName": "assets",

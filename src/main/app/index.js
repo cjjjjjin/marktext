@@ -469,6 +469,7 @@ class App {
         const editor = this._windowManager.get(windowId)
         if (editor) {
           editor.openTab(filePath, {}, true)
+          editor.bringToFront()
         }
       }
     })
@@ -483,6 +484,7 @@ class App {
             fileList.map(p => normalizeMarkdownPath(p))
               .filter(i => i && !i.isDir)
               .map(i => i.path))
+          editor.bringToFront()
         }
       }
     })
@@ -495,6 +497,7 @@ class App {
         const editor = this._windowManager.get(windowId)
         if (editor) {
           editor.openUntitledTab(true, data)
+          editor.bringToFront()
         }
       }
     })
@@ -505,6 +508,7 @@ class App {
         const editor = this._windowManager.get(windowId)
         if (editor) {
           editor.openFolder(pathname)
+          editor.bringToFront()
           return
         }
       }
@@ -526,6 +530,7 @@ class App {
         const editor = this._windowManager.get(windowId)
         if (editor) {
           editor.openTab(resolvedPath, {}, true)
+          editor.bringToFront()
         }
       }
     })

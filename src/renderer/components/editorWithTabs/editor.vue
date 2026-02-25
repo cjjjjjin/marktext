@@ -165,6 +165,7 @@ export default {
       spellcheckerEnabled: state => state.preferences.spellcheckerEnabled,
       spellcheckerNoUnderline: state => state.preferences.spellcheckerNoUnderline,
       spellcheckerLanguage: state => state.preferences.spellcheckerLanguage,
+      readOnly: state => state.preferences.readOnly,
 
       currentFile: state => state.editor.currentFile,
       projectTree: state => state.project.projectTree,
@@ -370,6 +371,13 @@ export default {
       }
     },
 
+    readOnly: function (value, oldValue) {
+      const { editor } = this
+      if (value !== oldValue && editor) {
+        editor.setOptions({ readOnly: value })
+      }
+    },
+
     codeFontSize: function (value, oldValue) {
       if (value !== oldValue) {
         addCommonStyle({
@@ -483,6 +491,7 @@ export default {
         spellcheckerEnabled,
         spellcheckerLanguage,
         hideLinkPopup,
+        readOnly,
         autoCheck
       } = this
 
@@ -528,6 +537,7 @@ export default {
         isGitlabCompatibilityEnabled,
         hideQuickInsertHint,
         hideLinkPopup,
+        readOnly,
         autoCheck,
         sequenceTheme,
         spellcheckEnabled: spellcheckerEnabled,
@@ -830,21 +840,24 @@ export default {
     },
 
     replaceMisspelling ({ word, replacement }) {
-      if (this.editor) {
-        this.editor._replaceCurrentWordInlineUnsafe(word, replacement)
+      if (this.readOnly || !this.editor) {
+        return
       }
+      this.editor._replaceCurrentWordInlineUnsafe(word, replacement)
     },
 
     handleUndo () {
-      if (this.editor) {
-        this.editor.undo()
+      if (this.readOnly || !this.editor) {
+        return
       }
+      this.editor.undo()
     },
 
     handleRedo () {
-      if (this.editor) {
-        this.editor.redo()
+      if (this.readOnly || !this.editor) {
+        return
       }
+      this.editor.redo()
     },
 
     handleSelectAll () {
@@ -865,15 +878,17 @@ export default {
 
     // Custom copyAsMarkdown copyAsHtml pasteAsPlainText
     handleCopyPaste (type) {
-      if (this.editor) {
-        this.editor[type]()
+      if (!this.editor || (this.readOnly && type === 'pasteAsPlainText')) {
+        return
       }
+      this.editor[type]()
     },
 
     insertImage (src) {
-      if (!this.sourceCode) {
-        this.editor && this.editor.insertImage({ src })
+      if (this.readOnly || this.sourceCode) {
+        return
       }
+      this.editor && this.editor.insertImage({ src })
     },
 
     handleSearch (value, opt) {
@@ -883,6 +898,9 @@ export default {
     },
 
     handReplace (value, opt) {
+      if (this.readOnly || !this.editor) {
+        return
+      }
       const searchMatches = this.editor.replace(value, opt)
       this.$store.dispatch('SEARCH', searchMatches)
     },
@@ -1024,6 +1042,9 @@ export default {
     },
 
     handleEditParagraph (type) {
+      if (this.readOnly) {
+        return
+      }
       if (type === 'table') {
         this.tableChecker = { rows: 4, columns: 3 }
         this.dialogTableVisible = true
@@ -1038,6 +1059,9 @@ export default {
     // handle `duplicate`, `delete`, `create paragraph below`
     handleParagraph (type) {
       const { editor } = this
+      if (this.readOnly) {
+        return
+      }
       if (editor) {
         switch (type) {
           case 'duplicate': {
@@ -1056,10 +1080,16 @@ export default {
     },
 
     handleInlineFormat (type) {
+      if (this.readOnly) {
+        return
+      }
       this.editor && this.editor.format(type)
     },
 
     handleDialogTableConfirm () {
+      if (this.readOnly) {
+        return
+      }
       this.dialogTableVisible = false
       this.editor && this.editor.createTable(this.tableChecker)
     },
@@ -1099,6 +1129,9 @@ export default {
 
     handleInsertParagraph (location) {
       const { editor } = this
+      if (this.readOnly) {
+        return
+      }
       editor && editor.insertParagraph(location)
     },
 
@@ -1111,6 +1144,9 @@ export default {
     },
 
     handleScreenShot () {
+      if (this.readOnly) {
+        return
+      }
       if (this.editor) {
         document.execCommand('paste')
       }

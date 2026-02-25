@@ -253,6 +253,7 @@ export const MUYA_DEFAULT_OPTION = Object.freeze({
   lineHeight: 1.6,
   focusMode: false,
   markdown: '',
+  readOnly: false,
   // Whether to trim the beginning and ending empty line in code block when open markdown.
   trimUnnecessaryCodeBlockEmptyLines: false,
   preferLooseListItem: true,

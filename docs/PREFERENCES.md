@@ -41,6 +41,7 @@ Preferences can be controlled and modified in the settings window or via the `pr
 | trimTrailingNewline                | Enum    | `2`                | Ensure a single trailing newline or whether trailing newlines should be removed: `0`: trim all trailing newlines, `1`: ensure single newline, `2`: auto detect, `3`: disabled. |
 | hideLinkPopup                      | Boolean | false              | It will not show the link popup when hover over the link if set `hideLinkPopup` to true                                                                                        |
 | autoCheck                          | Boolean | false              | Whether to automatically check related task. Optional value: true, false                                                                                             |
+| readOnly                           | Boolean | false              | Make editor content read-only. Copy and selection actions still work, but mutation actions are blocked.                                                       |
 
 #### Markdown
 

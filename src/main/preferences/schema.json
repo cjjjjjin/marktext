@@ -349,6 +349,11 @@
     ],
     "default": "path"
   },
+  "readOnly": {
+    "description": "Editor--Open files in read-only mode",
+    "type": "boolean",
+    "default": false
+  },
   "imagePreferRelativeDirectory": {
     "description": "Image--Whether to prefer the relative image directory.",
     "type": "boolean",

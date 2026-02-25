@@ -189,6 +189,9 @@ class Muya {
   }
 
   createTable (tableChecker) {
+    if (this.options.readOnly) {
+      return
+    }
     return this.contentState.createTable(tableChecker)
   }
 
@@ -240,22 +243,37 @@ class Muya {
   }
 
   updateParagraph (type) {
+    if (this.options.readOnly) {
+      return
+    }
     this.contentState.updateParagraph(type)
   }
 
   duplicate () {
+    if (this.options.readOnly) {
+      return
+    }
     this.contentState.duplicate()
   }
 
   deleteParagraph () {
+    if (this.options.readOnly) {
+      return
+    }
     this.contentState.deleteParagraph()
   }
 
   insertParagraph (location/* before or after */, text = '', outMost = false) {
+    if (this.options.readOnly) {
+      return
+    }
     this.contentState.insertParagraph(location, text, outMost)
   }
 
   editTable (data) {
+    if (this.options.readOnly) {
+      return
+    }
     this.contentState.editTable(data)
   }
 
@@ -284,10 +302,16 @@ class Muya {
   }
 
   format (type) {
+    if (this.options.readOnly) {
+      return
+    }
     this.contentState.format(type)
   }
 
   insertImage (imageInfo) {
+    if (this.options.readOnly) {
+      return
+    }
     this.contentState.insertImage(imageInfo)
   }
 
@@ -299,6 +323,9 @@ class Muya {
   }
 
   replace (value, opt) {
+    if (this.options.readOnly) {
+      return this.contentState.searchMatches
+    }
     this.contentState.replace(value, opt)
     this.contentState.render(false)
     return this.contentState.searchMatches
@@ -328,6 +355,9 @@ class Muya {
   }
 
   undo () {
+    if (this.options.readOnly) {
+      return
+    }
     this.contentState.history.undo()
 
     this.dispatchSelectionChange()
@@ -336,6 +366,9 @@ class Muya {
   }
 
   redo () {
+    if (this.options.readOnly) {
+      return
+    }
     this.contentState.history.redo()
 
     this.dispatchSelectionChange()
@@ -409,6 +442,10 @@ class Muya {
     if (options.bulletListMarker) {
       this.contentState.turndownConfig.bulletListMarker = options.bulletListMarker
     }
+
+    if (typeof options.readOnly !== 'undefined') {
+      this.container.setAttribute('contenteditable', !options.readOnly)
+    }
   }
 
   hideAllFloatTools () {
@@ -427,6 +464,9 @@ class Muya {
    * @param {boolean} setCursor Shoud we update the editor cursor?
    */
   replaceWordInline (line, wordCursor, replacement, setCursor = false) {
+    if (this.options.readOnly) {
+      return
+    }
     this.contentState.replaceWordInline(line, wordCursor, replacement, setCursor)
   }
 
@@ -442,6 +482,9 @@ class Muya {
    * @returns {boolean} True on success.
    */
   _replaceCurrentWordInlineUnsafe (word, replacement) { // __MARKTEXT_PATCH__
+    if (this.options.readOnly) {
+      return false
+    }
     return this.contentState._replaceCurrentWordInlineUnsafe(word, replacement)
   }
 
@@ -473,7 +516,7 @@ function getContainer (originContainer, options) {
     container.classList.add('ag-show-quick-insert-hint')
   }
 
-  container.setAttribute('contenteditable', true)
+  container.setAttribute('contenteditable', !options.readOnly)
   container.setAttribute('autocorrect', false)
   container.setAttribute('autocomplete', 'off')
   // NOTE: The browser is not able to correct misspelled words words without

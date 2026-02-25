@@ -99,8 +99,14 @@ class Keyboard {
     const docHandler = event => {
       switch (event.code) {
         case EVENT_KEYS.Enter:
+          if (this.muya.options.readOnly) {
+            return
+          }
           return contentState.docEnterHandler(event)
         case EVENT_KEYS.Space: {
+          if (this.muya.options.readOnly) {
+            return
+          }
           if (contentState.selectedImage) {
             const { token } = contentState.selectedImage
             const { src } = getImageInfo(token.src || token.attrs.src)
@@ -113,9 +119,15 @@ class Keyboard {
           break
         }
         case EVENT_KEYS.Backspace: {
+          if (this.muya.options.readOnly) {
+            return
+          }
           return contentState.docBackspaceHandler(event)
         }
         case EVENT_KEYS.Delete: {
+          if (this.muya.options.readOnly) {
+            return
+          }
           return contentState.docDeleteHandler(event)
         }
         case EVENT_KEYS.ArrowUp: // fallthrough
@@ -165,13 +177,17 @@ class Keyboard {
       }
       switch (event.key) {
         case EVENT_KEYS.Backspace:
-          contentState.backspaceHandler(event)
+          if (!this.muya.options.readOnly) {
+            contentState.backspaceHandler(event)
+          }
           break
         case EVENT_KEYS.Delete:
-          contentState.deleteHandler(event)
+          if (!this.muya.options.readOnly) {
+            contentState.deleteHandler(event)
+          }
           break
         case EVENT_KEYS.Enter:
-          if (!this.isComposed) {
+          if (!this.isComposed && !this.muya.options.readOnly) {
             contentState.enterHandler(event)
             this.muya.dispatchChange()
           }
@@ -185,7 +201,9 @@ class Keyboard {
           }
           break
         case EVENT_KEYS.Tab:
-          contentState.tabHandler(event)
+          if (!this.muya.options.readOnly) {
+            contentState.tabHandler(event)
+          }
           break
         default:
           break
@@ -199,6 +217,9 @@ class Keyboard {
   inputBinding () {
     const { container, eventCenter, contentState } = this.muya
     const inputHandler = event => {
+      if (this.muya.options.readOnly) {
+        return
+      }
       if (!this.isComposed) {
         contentState.inputHandler(event)
         this.muya.dispatchChange()

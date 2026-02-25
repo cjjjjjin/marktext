@@ -34,6 +34,7 @@ const state = {
   trimTrailingNewline: 2,
   textDirection: 'ltr',
   hideQuickInsertHint: false,
+  readOnly: false,
   imageInsertAction: 'folder',
   imagePreferRelativeDirectory: false,
   imageRelativeDirectoryName: 'assets',
