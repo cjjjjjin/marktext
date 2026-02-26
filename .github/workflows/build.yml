@@ -22,6 +22,7 @@ jobs:
 
     env:
       DISPLAY: ":99.0"
+      ELECTRON_DISABLE_SANDBOX: 1
       # MARKTEXT_IS_STABLE: 1
       MARKTEXT_EXIT_ON_ERROR: 1
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -37,11 +38,6 @@ jobs:
           check-latest: true
           cache: yarn
           cache-dependency-path: yarn.lock
-
-      - name: Setup MSVC build environment
-        uses: ilammy/msvc-dev-cmd@v1
-        with:
-          arch: x64
 
       - name: Install build dependencies
         if: runner.os == 'Linux'
@@ -109,6 +105,11 @@ jobs:
           check-latest: true
           cache: yarn
           cache-dependency-path: yarn.lock
+
+      - name: Setup MSVC build environment
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
 
       # Workaround: Fix native build failure due to outdated node-gyp version.
       - name: Fix node-gyp
