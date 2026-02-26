@@ -76,6 +76,9 @@ jobs:
         if: ${{ steps.cacheNodeModules.outputs.cache-hit != 'true' }}
         run: yarn install --check-files --frozen-lockfile
 
+      - name: Upgrade local node-gyp
+        run: npm install node-gyp@latest --no-save
+
       - name: Lint
         run: |
           yarn run lint
@@ -150,7 +153,13 @@ jobs:
       - name: Install dependencies
         # Windows worker fail sometimes because a module cannot be found.
         # if: ${{ steps.cacheNodeModules.outputs.cache-hit != 'true' }}
-        run: yarn install --check-files --frozen-lockfile
+        run: |
+          node .electron-vue/preinstall.js
+          yarn install --check-files --frozen-lockfile --ignore-scripts
+          npm install node-gyp@latest --no-save
+          node .electron-vue/postinstall.js
+          yarn run rebuild
+          yarn run lint:fix
 
       - name: Lint
         run: |
