@@ -38,6 +38,11 @@ jobs:
           cache: yarn
           cache-dependency-path: yarn.lock
 
+      - name: Setup MSVC build environment
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
       - name: Install build dependencies
         if: runner.os == 'Linux'
         #                         electron-builder                 | keyboard-layout         | keytar                      | fontmanager
@@ -110,6 +115,8 @@ jobs:
         run: |
           npm install --global node-gyp@latest
           npm prefix -g | % {npm config set node_gyp "$_\node_modules\node-gyp\bin\node-gyp.js"}
+          npm config set msvs_version 2022
+          npm config set python python
           node-gyp install
         shell: pwsh
 
