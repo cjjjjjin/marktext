@@ -13,7 +13,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [macos-11, ubuntu-latest]
+        os: [ubuntu-latest]
 
     env:
       DISPLAY: ":99.0"
@@ -41,6 +41,11 @@ jobs:
           sudo apt-get -y update
           sudo apt-get install -y icnsutils graphicsmagick xz-utils libx11-dev libxkbfile-dev gnome-keyring libsecret-1-dev libfontconfig-dev rpm
 
+      - name: Setup node-gyp
+        run: |
+          npm install --global node-gyp@latest
+          echo "npm_config_node_gyp=$(npm prefix -g)/lib/node_modules/node-gyp/bin/node-gyp.js" >> "$GITHUB_ENV"
+
       - name: Cache node_modules
         uses: actions/cache@v4
         with:
@@ -64,6 +69,9 @@ jobs:
       - name: Install dependencies
         run: yarn install --check-files --frozen-lockfile
 
+      - name: Upgrade local node-gyp
+        run: npm install node-gyp@latest --no-save --legacy-peer-deps
+
       - name: Strip ripgrep on Linux
         if: runner.os == 'Linux'
         run: strip node_modules/vscode-ripgrep/bin/rg
@@ -82,8 +90,6 @@ jobs:
         run: |
               if [ "$RUNNER_OS" == "Linux" ]; then
                 yarn run release:linux --publish always
-              elif [ "$RUNNER_OS" == "macOS" ]; then
-                yarn run release:mac --publish always
               else
                 echo "$RUNNER_OS not supported"
                 exit 1
@@ -98,23 +104,17 @@ jobs:
           sha256sum build/marktext-*.rpm
         shell: bash
 
-      - name: Calculate checksums
-        if: runner.os == 'macOS'
-        run: |
-          shasum -a 256 build/marktext-arm64-mac.zip
-          shasum -a 256 build/marktext-x64-mac.zip
-          shasum -a 256 build/marktext-arm64.dmg
-          shasum -a 256 build/marktext-x64.dmg
-        shell: bash
-
   windows:
-    runs-on: windows-latest
+    runs-on: windows-2022
     continue-on-error: false
     timeout-minutes: 45
 
     env:
       MARKTEXT_IS_STABLE: 1
       MARKTEXT_EXIT_ON_ERROR: 1
+      GYP_MSVS_VERSION: 2022
+      npm_config_msvs_version: 2022
+      npm_config_python: python
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
@@ -129,18 +129,20 @@ jobs:
           cache: yarn
           cache-dependency-path: yarn.lock
 
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
       - name: Setup MSVC build environment
         uses: ilammy/msvc-dev-cmd@v1
         with:
           arch: x64
 
-      # Workaround: Fix native build failure due to outdated node-gyp version.
-      - name: Fix node-gyp
+      - name: Setup node-gyp
         run: |
           npm install --global node-gyp@latest
-          npm prefix -g | % {npm config set node_gyp "$_\node_modules\node-gyp\bin\node-gyp.js"}
-          npm config set msvs_version 2022
-          npm config set python python
+          npm prefix -g | % {"npm_config_node_gyp=$_\node_modules\node-gyp\bin\node-gyp.js" >> $env:GITHUB_ENV}
           node-gyp install
         shell: pwsh
 
