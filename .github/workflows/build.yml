@@ -46,6 +46,11 @@ jobs:
           sudo apt-get -y update
           sudo apt-get install -y icnsutils graphicsmagick xz-utils libx11-dev libxkbfile-dev gnome-keyring libsecret-1-dev libfontconfig-dev
 
+      - name: Setup node-gyp
+        run: |
+          npm install --global node-gyp@latest
+          echo "npm_config_node_gyp=$(npm prefix -g)/lib/node_modules/node-gyp/bin/node-gyp.js" >> "$GITHUB_ENV"
+
       - name: Cache node_modules
         uses: actions/cache@v4
         id: cacheNodeModules
@@ -85,13 +90,16 @@ jobs:
         run: yarn build:bin
 
   windows:
-    runs-on: windows-latest
+    runs-on: windows-2022
     continue-on-error: false
     timeout-minutes: 45
 
     env:
       # MARKTEXT_IS_STABLE: 1
       MARKTEXT_EXIT_ON_ERROR: 1
+      GYP_MSVS_VERSION: 2022
+      npm_config_msvs_version: 2022
+      npm_config_python: python
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
@@ -111,13 +119,10 @@ jobs:
         with:
           arch: x64
 
-      # Workaround: Fix native build failure due to outdated node-gyp version.
-      - name: Fix node-gyp
+      - name: Setup node-gyp
         run: |
           npm install --global node-gyp@latest
-          npm prefix -g | % {npm config set node_gyp "$_\node_modules\node-gyp\bin\node-gyp.js"}
-          npm config set msvs_version 2022
-          npm config set python python
+          npm prefix -g | % {"npm_config_node_gyp=$_\node_modules\node-gyp\bin\node-gyp.js" >> $env:GITHUB_ENV}
           node-gyp install
         shell: pwsh
 
