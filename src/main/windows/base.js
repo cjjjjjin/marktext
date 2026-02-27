@@ -1,5 +1,4 @@
 import EventEmitter from 'events'
-import { isLinux } from '../config'
 
 /**
  * A MarkText window.
@@ -42,11 +41,8 @@ class BaseWindow extends EventEmitter {
     const { browserWindow: win } = this
     if (win.isMinimized()) win.restore()
     if (!win.isVisible()) win.show()
-    if (isLinux) {
-      win.focus()
-    } else {
-      win.moveTop()
-    }
+    win.focus()
+    if (!win.isFocused()) win.moveTop()
   }
 
   reload () {
