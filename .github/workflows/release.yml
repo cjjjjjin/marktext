@@ -72,6 +72,12 @@ jobs:
       - name: Upgrade local node-gyp
         run: npm install node-gyp@latest --no-save --legacy-peer-deps
 
+      - name: Rebuild keytar for Electron runtime
+        run: yarn electron-rebuild -f -w keytar
+
+      - name: Verify keytar native binary
+        run: test -f node_modules/keytar/build/Release/keytar.node
+
       - name: Strip ripgrep on Linux
         if: runner.os == 'Linux'
         run: strip node_modules/vscode-ripgrep/bin/rg
@@ -176,6 +182,16 @@ jobs:
 
       - name: Install dependencies
         run: yarn install --check-files --frozen-lockfile
+
+      - name: Rebuild keytar for Electron runtime
+        run: yarn electron-rebuild -f -w keytar
+
+      - name: Verify keytar native binary
+        run: |
+          if (!(Test-Path "node_modules\\keytar\\build\\Release\\keytar.node")) {
+            throw "Missing node_modules/keytar/build/Release/keytar.node"
+          }
+        shell: pwsh
 
       - name: Lint
         run: |

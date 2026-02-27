@@ -79,6 +79,12 @@ jobs:
       - name: Upgrade local node-gyp
         run: npm install node-gyp@latest --no-save --legacy-peer-deps
 
+      - name: Rebuild keytar for Electron runtime
+        run: yarn electron-rebuild -f -w keytar
+
+      - name: Verify keytar native binary
+        run: test -f node_modules/keytar/build/Release/keytar.node
+
       - name: Lint
         run: |
           yarn run lint
@@ -167,6 +173,16 @@ jobs:
         # Windows worker fail sometimes because a module cannot be found.
         # if: ${{ steps.cacheNodeModules.outputs.cache-hit != 'true' }}
         run: yarn install --check-files --frozen-lockfile
+
+      - name: Rebuild keytar for Electron runtime
+        run: yarn electron-rebuild -f -w keytar
+
+      - name: Verify keytar native binary
+        run: |
+          if (!(Test-Path "node_modules\\keytar\\build\\Release\\keytar.node")) {
+            throw "Missing node_modules/keytar/build/Release/keytar.node"
+          }
+        shell: pwsh
 
       - name: Lint
         run: |
