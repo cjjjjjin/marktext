@@ -10,12 +10,7 @@ export const tabsMixins = {
       }
     },
     removeFileInTab (file) {
-      const { isSaved } = file
-      if (isSaved) {
-        this.$store.dispatch('FORCE_CLOSE_TAB', file)
-      } else {
-        this.$store.dispatch('CLOSE_UNSAVED_TAB', file)
-      }
+      this.$store.dispatch('CLOSE_TAB', file)
     }
   }
 }

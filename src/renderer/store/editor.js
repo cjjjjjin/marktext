@@ -403,7 +403,12 @@ const actions = {
     }
   },
 
-  CLOSE_UNSAVED_TAB ({ commit, state }, file) {
+  CLOSE_UNSAVED_TAB ({ commit, state, rootState, dispatch }, file) {
+    if (rootState.preferences.readOnly) {
+      dispatch('FORCE_CLOSE_TAB', file)
+      return
+    }
+
     const { id, pathname, filename, markdown } = file
     const options = getOptionsFromState(file)
 
@@ -530,8 +535,14 @@ const actions = {
     })
   },
 
-  ASK_FOR_SAVE_ALL ({ commit, state }, closeTabs) {
+  ASK_FOR_SAVE_ALL ({ commit, state, rootState }, closeTabs) {
     const { tabs } = state
+
+    if (closeTabs && rootState.preferences.readOnly) {
+      commit('CLOSE_TABS', tabs.map(f => f.id))
+      return
+    }
+
     const unsavedFiles = tabs
       .filter(file => !(file.isSaved && /[^\n]/.test(file.markdown)))
       .map(file => {
@@ -711,7 +722,12 @@ const actions = {
     })
   },
 
-  CLOSE_TAB ({ dispatch }, file) {
+  CLOSE_TAB ({ dispatch, rootState }, file) {
+    if (rootState.preferences.readOnly) {
+      dispatch('FORCE_CLOSE_TAB', file)
+      return
+    }
+
     const { isSaved } = file
     if (isSaved) {
       dispatch('FORCE_CLOSE_TAB', file)
