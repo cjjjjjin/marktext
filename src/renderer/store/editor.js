@@ -499,8 +499,13 @@ const actions = {
     })
   },
 
-  LISTEN_FOR_CLOSE ({ state }) {
+  LISTEN_FOR_CLOSE ({ state, rootState }) {
     ipcRenderer.on('mt::ask-for-close', e => {
+      if (rootState.preferences.readOnly) {
+        ipcRenderer.send('mt::close-window')
+        return
+      }
+
       const unsavedFiles = state.tabs
         .filter(file => !file.isSaved)
         .map(file => {
