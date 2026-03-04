@@ -35,7 +35,9 @@ import { mapState } from 'vuex'
 
 export default {
   data () {
-    return {}
+    return {
+      autoCloseTimer: null
+    }
   },
   computed: {
     ...mapState({
@@ -51,19 +53,41 @@ export default {
       return notifications[0]
     }
   },
+  watch: {
+    currentNotification (value) {
+      this.clearAutoCloseTimer()
+      if (value && value.dismissAfter > 0) {
+        this.autoCloseTimer = setTimeout(() => {
+          this.dismissNotification(false, false)
+        }, value.dismissAfter)
+      }
+    }
+  },
+  beforeDestroy () {
+    this.clearAutoCloseTimer()
+  },
   methods: {
-    handleClick (status) {
+    clearAutoCloseTimer () {
+      if (this.autoCloseTimer) {
+        clearTimeout(this.autoCloseTimer)
+        this.autoCloseTimer = null
+      }
+    },
+    dismissNotification (status, invokeAction = true) {
+      this.clearAutoCloseTimer()
       const notifications = this.currentFile.notifications
       if (!notifications || notifications.length === 0) {
-        console.error('notifications::handleClick: Cannot find notification on stack.')
+        console.error('notifications::dismissNotification: Cannot find notification on stack.')
         return
       }
 
       const item = notifications.shift()
-      const action = item.action
-      if (action) {
-        action(status)
+      if (invokeAction && item.action) {
+        item.action(status)
       }
+    },
+    handleClick (status) {
+      this.dismissNotification(status)
     }
   }
 }

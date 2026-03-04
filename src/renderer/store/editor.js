@@ -302,6 +302,9 @@ const mutations = {
     const action = data.action || defaultAction
     const showConfirm = data.showConfirm || false
     const style = data.style || 'info'
+    const dismissAfter = Number.isInteger(data.dismissAfter) && data.dismissAfter > 0
+      ? data.dismissAfter
+      : 0
     // Whether only one notification should exist.
     const exclusiveType = data.exclusiveType || ''
 
@@ -328,6 +331,7 @@ const mutations = {
       msg,
       showConfirm,
       style,
+      dismissAfter,
       exclusiveType,
       action: action
     })
@@ -1172,6 +1176,18 @@ const actions = {
           }
           case 'add':
           case 'change': {
+            if (rootState.preferences.readOnly) {
+              commit('PUSH_TAB_NOTIFICATION', {
+                tabId: id,
+                msg: `"${filename}" has been changed on disk and was reloaded automatically in read-only mode.`,
+                showConfirm: false,
+                exclusiveType: 'file_changed',
+                dismissAfter: 5000
+              })
+              commit('LOAD_CHANGE', change)
+              return
+            }
+
             const { autoSave } = rootState.preferences
             if (autoSave) {
               if (autoSaveTimers.has(id)) {
